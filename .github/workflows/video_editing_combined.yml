@@ -64,7 +64,7 @@ jobs:
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           sparse-checkout: |
             IPNBY/quality.ipynb
-            VIDEO_EDITING_QUALITY/
+            VIDEO_EDITING_QUALITY
             counter_video_editing.txt
             video_end_tracker.txt
             requirements.txt
@@ -144,7 +144,7 @@ jobs:
         run: |
           mkdir -p kaggle-dataset
           cp -r REELS kaggle-dataset/ || true
-          cp -r VIDEO_EDITING_QUALITY/ kaggle-dataset/ || true
+          cp -r VIDEO_EDITING_QUALITY kaggle-dataset/ || true
           cp counter_video_editing.txt kaggle-dataset/ || true
           cp video_end_tracker.txt kaggle-dataset/ || true
           cp requirements.txt kaggle-dataset/ || true
@@ -203,27 +203,6 @@ jobs:
           echo "📦 Listing datasets for user: $KAGGLE_USERNAME"
           sleep 60
           kaggle datasets list --user $KAGGLE_USERNAME
-
-      # Wait for Dataset to be Ready
-      - name: Wait for Dataset to be Ready
-        run: |
-          KAGGLE_USERNAME="${{ steps.set_kaggle_creds.outputs.kaggle_username }}"
-          DATASET_ID="$KAGGLE_USERNAME/video-editing-data"
-          echo "⏳ Waiting for dataset $DATASET_ID to be ready..."
-          for i in $(seq 1 20); do
-            STATUS=$(kaggle datasets status $DATASET_ID 2>&1)
-            echo "[$i] Dataset status: $STATUS"
-            if [[ "$STATUS" == *"ready"* ]]; then
-              echo "✅ Dataset is ready!"
-              break
-            fi
-            if [ $i -eq 20 ]; then
-              echo "❌ Dataset not ready after 20 attempts."
-              exit 1
-            fi
-            echo "⏳ Not ready yet. Waiting 30 seconds..."
-            sleep 30
-          done
 
       # Prepare Kernel Metadata
       - name: Prepare Kernel Metadata
